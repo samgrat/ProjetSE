@@ -26,7 +26,6 @@ public class Consommateur extends Acteur implements _Consommateur {
 		id = idStatic; 
 		idStatic ++;
 		nbMessCons = 0;
-
 	}
 
 	@Override

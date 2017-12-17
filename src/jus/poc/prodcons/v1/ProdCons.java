@@ -6,12 +6,12 @@ import jus.poc.prodcons._Consommateur;
 import jus.poc.prodcons._Producteur;
 
 public class ProdCons implements Tampon {
-	
+
 	private int bufferSize;
 	private int lec;
 	private int ecr;
 	protected Message[] buffer;
-	
+
 	public ProdCons(int sizeOfBuffer) {
 		buffer = new Message[sizeOfBuffer];
 		bufferSize = sizeOfBuffer;
@@ -24,41 +24,41 @@ public class ProdCons implements Tampon {
 	}
 
 	@Override
-	public Message get(_Consommateur cons) throws Exception, InterruptedException {
-		
+	public synchronized Message get(_Consommateur cons) throws Exception, InterruptedException {
+
 		while (lec == ecr) {
-			System.out.println("Le consommateur " + cons.identification() + " est en attente");
+			System.out.println("Le consommateur " + cons.identification() + " est en attente \n");
 			wait();
 		}
-			
+
 		Message mess = buffer[lec];
 		lec++;
-		
+
+		System.out.print("\t" + cons + " + " + 1 + "\t" + "  :  " + mess + "\n");
+
 		if (lec == bufferSize) {
-			ecr = ecr%bufferSize;
+			
+			ecr = 0;
 			lec = 0;
 		}
-			
-		System.out.print("\t" + cons + " + " + 1 + "\t" + "  :  " + mess); 
-		
+
 		notifyAll();
-		
+
 		return mess;
 	}
-	
 
 	@Override
-	public void put(_Producteur prod, Message mess) throws Exception, InterruptedException {
+	public synchronized void put(_Producteur prod, Message mess) throws Exception, InterruptedException {
 		while (ecr - lec >= bufferSize) {
-			System.out.println("Le producteur " + prod.identification() + " est en attente");
+			System.out.println("Le producteur " + prod.identification() + " est en attente \n");
 			wait();
 		}
 
-		buffer[ecr%bufferSize] = mess;
+		buffer[ecr] = mess;
 		ecr++;
-			
-		System.out.print("\t" + prod + " + " + 1 + "\t" + "  :  " + mess);
-			
+
+		System.out.print("\t" + prod + " + " + 1 + "\t" + "  :  " + mess + "\n");
+
 		notifyAll();
 	}
 
