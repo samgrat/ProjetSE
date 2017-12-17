@@ -73,7 +73,7 @@ public class Consommateur extends Acteur implements _Consommateur {
 	}
 	
 	public String toString() {
-		return "Consommateur " + id + "] Nombre de messages lus: " + nbMessCons;
+		return "[Consommateur " + id + "] Nombre de messages lus: " + nbMessCons;
 	}
 
 }
