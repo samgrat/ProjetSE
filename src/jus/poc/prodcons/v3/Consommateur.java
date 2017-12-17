@@ -3,6 +3,7 @@ package jus.poc.prodcons.v3;
 import jus.poc.prodcons.Acteur;
 import jus.poc.prodcons.Aleatoire;
 import jus.poc.prodcons.ControlException;
+import jus.poc.prodcons.Message;
 import jus.poc.prodcons.Observateur;
 import jus.poc.prodcons._Consommateur;
 
@@ -19,13 +20,15 @@ public class Consommateur extends Acteur implements _Consommateur {
 		super(Acteur.typeConsommateur, observateur, moyenneTempsDeTraitement, deviationTempsDeTraitement);
 		
 		random = new Aleatoire(moyenneTempsDeTraitement, deviationTempsDeTraitement);
-		
-		cptMax = random.next();
+
+		cptMax = random.next();											
 		cpt = 0;
 		
 		id = idStatic; 
 		idStatic ++;
 		nbMessCons = 0;
+		
+		observateur.newConsommateur(this);	// newConsommateur
 	}
 
 	@Override
@@ -50,13 +53,15 @@ public class Consommateur extends Acteur implements _Consommateur {
 
 	@Override
 	public void run() {
-		while (!TestProdCons.TEST.finished()) {
-			if (cpt < cptMax)
-				cpt++;
-			else {
+		while (!TestProdCons.TEST.finished()) {							
+			if (cpt < cptMax)											
+				cpt++;													
+			else {														
 				try {
-					TestProdCons.TEST.getBuffer().get(this);
-					nbMessCons++;
+					Message mess = TestProdCons.TEST.getBuffer().get(this);
+					TestProdCons.TEST.getBuffer().get(this);			
+					nbMessCons++;										
+					TestProdCons.TEST.getObservateur().consommationMessage(this, mess, cptMax);	// consommationMessage
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					} 
@@ -65,16 +70,16 @@ public class Consommateur extends Acteur implements _Consommateur {
 					e.printStackTrace();
 				}
 				
-				cpt = random.next();
-				cpt = 0;
+				cpt = random.next();										
+				cpt = 0;													
 			}
 		}
+		
 		TestProdCons.TEST.remove(this);
 	}
 	
 	public String toString() {
-		return "Consommateur " + id + "] Nombre de messages lus: " + nbMessCons;
+		return "[<--] CONSOMMATEUR " + id + " : nombre de messages lus = " + nbMessCons;
 	}
 
 }
-

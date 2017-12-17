@@ -1,4 +1,3 @@
-// use of wikipedia.org and stackoverflow
 package jus.poc.prodcons.v2;
 
 import jus.poc.prodcons.Message;
@@ -6,97 +5,109 @@ import jus.poc.prodcons.Tampon;
 import jus.poc.prodcons._Consommateur;
 import jus.poc.prodcons._Producteur;
 
-// A bit buggy first line "Consommateur 1] Nombre de messages lus: 0 + 1	  :  null" why the fuck is that ??
-
 public class ProdCons implements Tampon {
-
-	final class semaphore {
-		int state;
-
-		public semaphore(int n) {
-			state = n;
+	
+	final class Semaphore {
+		private int k = 1;
+		
+		public void suspend() throws InterruptedException {					// suspend le processus courant 
+			synchronized(this) {
+				k--;
+				if (k < 0 )
+					wait();													// suspension du processus  
+			}				
 		}
 		
-		// prend une ressource
-		public void P() throws InterruptedException {
-			// si il n'y a pas de ressource disponible on attend
-			while (state-1 < 0){
-				try{
-					Thread.sleep(1);}
-				catch(InterruptedException e){
-					throw new IllegalStateException(e);
-				} 
+		public void wakeup() {												// remet le processus dans la file des prêts
+			synchronized(this) {
+				k++;
+				notify();													// réveil du processus
 			}
-			state --;	
 		}
 		
-		// ajoute une ressource
-		public void V() {
-			state++;
-		}
-	};
-
-	public static semaphore nbespacevide;
-	public static semaphore nbmessinbuffer;
-	public static semaphore filedattente;
-
-	private int bufferSize;
-	private int lec;
-	private int ecr;
-	protected Message[] buffer;
-
+		
+	}
+	
+	private Semaphore semaProd;
+	private Semaphore semaCons;	
+	
+	private int bufferSize;													// taille du buffer
+	private int lec;														// indice du message retiré (lecture)
+	private int ecr;														// indice du message déposé (écriture)
+	protected Message[] buffer;												// le buffer est un vecteur de messages
+	
 	public ProdCons(int sizeOfBuffer) {
+		semaProd = new Semaphore();
+		semaCons = new Semaphore();
+		
 		buffer = new Message[sizeOfBuffer];
 		bufferSize = sizeOfBuffer;
 		lec = 0;
 		ecr = 0;
-
-		nbespacevide = new semaphore(sizeOfBuffer);
-		nbmessinbuffer = new semaphore(0);
-		filedattente = new semaphore(1);
 	}
-
+	
 	public int enAttente() {
 		return ecr - lec;
 	}
 
 	@Override
-	public Message get(_Consommateur cons) throws Exception, InterruptedException {
-
-		nbespacevide.P();
-		filedattente.P();
+	public Message get(_Consommateur cons) throws Exception, InterruptedException {		
+		Message mess;
 		
-		Message mess = buffer[lec];
-		lec++;
+		System.out.println("[---] CONSOMMATEUR " + cons.identification() + " en demande de lecture");
 		
-		System.out.print("\t" + cons + " + " + 1 + "\t" + "  :  " + mess + "\n");
-
-		if (lec == bufferSize) {
-
-			ecr = 0;
-			lec = 0;
+		semaCons.suspend();
+				
+		synchronized(this) {
+			while (lec == ecr) {
+				wait();
+			}
+			
+			mess = buffer[lec];												// le message est retiré du buffer depuis l'endroit approprié
+			lec++;															// on incrémente l'indice du dernier message retiré du buffer 
+		
+			if (lec == bufferSize) {										// si cet indice est égal à la taille du buffer
+				ecr = ecr%bufferSize;										// alors l'indice du dernier message déposé dans le buffer correspond au premier élément du buffer
+				lec = 0;													// et on réinitialise l'indice du dernier message retiré du buffer
+			}
+			
+			System.out.print(cons); 
+			System.out.println(" + " + 1);
+			System.out.println("\t\t       " + mess);
+		
+			notifyAll();
 		}
 		
-		filedattente.V();
-		nbmessinbuffer.V();
-
+		semaCons.wakeup();
+		
 		return mess;
 	}
+	
 
 	@Override
 	public void put(_Producteur prod, Message mess) throws Exception, InterruptedException {
 		
-		nbmessinbuffer.P();
-		filedattente.P();
-
-		buffer[ecr] = mess;
-		ecr++;
-
-		System.out.print("\t" + prod + " + " + 1 + "\t" + "  :  " + mess + "\n");
-
-		filedattente.V();
-		nbespacevide.V();
+		System.out.println("[+++] PRODUCTEUR " + prod.identification() + " en demande d'écriture");
 		
+		semaProd.suspend();
+		
+		synchronized(this) {
+			
+			while (ecr - lec >= bufferSize) {
+				wait();
+			}
+																			
+			buffer[ecr%bufferSize] = mess;									// le message est déposé dans le buffer au prochain endroit disponible
+			ecr++;															// on incrémente l'indice du dernier message déposé dans le buffer
+			
+			System.out.print(prod); 
+			System.out.println(" + " + 1);
+			System.out.println("\t\t     " + mess);
+			
+			notifyAll();
+		}
+		
+		semaProd.wakeup();
 	}
 
 	@Override

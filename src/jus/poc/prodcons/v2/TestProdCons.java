@@ -9,6 +9,10 @@ public class TestProdCons extends Simulateur {
 	
 	public final static TestProdCons TEST = new TestProdCons(new Observateur());
 	
+	protected static Vector<Consommateur> consumerVector;
+	protected static Vector<Producteur> producerVector;
+	protected static ProdCons buffer;
+	
 	protected void run() throws Exception {
 		init("options.xml");
 		
@@ -16,11 +20,7 @@ public class TestProdCons extends Simulateur {
 			producerVector.get(i).start();
 		for (int i = 0; i < consumerVector.size(); i++)
 			consumerVector.get(i).start();
-		}
-		
-	protected static Vector<Consommateur> consumerVector;
-	protected static Vector<Producteur> producerVector;
-	protected static ProdCons buffer;
+		}										
 		
 	void remove(Consommateur p) {
 		consumerVector.remove(p);
@@ -50,6 +50,9 @@ public class TestProdCons extends Simulateur {
 	*/
 	protected void init(String file) {
 		
+		System.out.println("---------- NOUVEAU TEST ----------");
+		System.out.println("\n");
+		
 		// retreave the parameters of the application
 		final class Properties extends java.util.Properties {
 			private static final long serialVersionUID = 1L;
@@ -70,17 +73,17 @@ public class TestProdCons extends Simulateur {
 		
 		Properties option = new Properties("jus/poc/prodcons/options/"+file);
 		
+		int nbrProd = option.get("nbProd");
+		int nbrCons = option.get("nbCons");
+		
 		producerVector = new Vector<Producteur>();
 		consumerVector = new Vector<Consommateur>();
 		buffer = new ProdCons(option.get("nbBuffer"));
 		
-		int nbr_prod = option.get("nbProd");
-		int nbr_cons = option.get("nbCons");
-		
 		try {
-			for (int i = 0; i < nbr_prod; i++)
+			for (int i = 0; i < nbrProd; i++)
 				producerVector.add(new Producteur(observateur, option.get("tempsMoyenProduction"), option.get("deviationTempsMoyenProduction")));
-			for (int i = 0; i < nbr_cons; i++)
+			for (int i = 0; i < nbrCons; i++)
 				consumerVector.add(new Consommateur(observateur, option.get("tempsMoyenConsommation"), option.get("deviationTempsMoyenConsommation")));
 		} 
 		catch (ControlException e) {

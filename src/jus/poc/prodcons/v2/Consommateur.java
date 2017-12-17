@@ -19,13 +19,14 @@ public class Consommateur extends Acteur implements _Consommateur {
 		super(Acteur.typeConsommateur, observateur, moyenneTempsDeTraitement, deviationTempsDeTraitement);
 		
 		random = new Aleatoire(moyenneTempsDeTraitement, deviationTempsDeTraitement);
-		
-		cptMax = random.next();
+
+		cptMax = random.next();											
 		cpt = 0;
 		
 		id = idStatic; 
 		idStatic ++;
 		nbMessCons = 0;
+
 	}
 
 	@Override
@@ -50,13 +51,13 @@ public class Consommateur extends Acteur implements _Consommateur {
 
 	@Override
 	public void run() {
-		while (!TestProdCons.TEST.finished()) {
-			if (cpt < cptMax)
-				cpt++;
-			else {
+		while (!TestProdCons.TEST.finished()) {							// tant que le test n'est pas terminé 
+			if (cpt < cptMax)											// si le compteur est inférieur au compteur max
+				cpt++;													// alors on incrémente le compteur de 1
+			else {														// sinon
 				try {
-					TestProdCons.TEST.getBuffer().get(this);
-					nbMessCons++;
+					TestProdCons.TEST.getBuffer().get(this);			// on retire le message du buffer
+					nbMessCons++;										// et on incrémente le nombre de messages consommés de 1
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					} 
@@ -65,16 +66,16 @@ public class Consommateur extends Acteur implements _Consommateur {
 					e.printStackTrace();
 				}
 				
-				cpt = random.next();
-				cpt = 0;
+				cpt = random.next();										// le compteur max prend une nouvelle valeur 
+				cpt = 0;													// on réinitialise notre compteur
 			}
 		}
+		
 		TestProdCons.TEST.remove(this);
 	}
 	
 	public String toString() {
-		return "Consommateur " + id + "] Nombre de messages lus: " + nbMessCons;
+		return "[<--] CONSOMMATEUR " + id + " : nombre de messages lus = " + nbMessCons;
 	}
 
 }
-

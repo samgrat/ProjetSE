@@ -13,7 +13,7 @@ public class MessageX implements Message {
 	}
 	
 	public String toString() {
-		return "Message : producteur " + idProd + "; numéro " + num;
+		return "message [PRODUCTEUR " + idProd + ", NUMERO " + num + "]";
 	}
 
 }
