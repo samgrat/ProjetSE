@@ -8,13 +8,13 @@ import jus.poc.prodcons._Producteur;
 
 public class Producteur extends Acteur implements _Producteur {
 	
-	protected int id;
-	protected int nbMessMax;
-	protected int nbMessProd;
+	protected int id;														// identificateur du producteur de message
+	protected int nbMessMax;												// 
+	protected int nbMessProd;												// nombre de messages produits par le producteur
 	
 	private static int idStatic = 1;
-	private int cpt, cptMax;
-	private Aleatoire random;
+	private int cpt, cptMax;												// compteur et compteur max
+	private Aleatoire random;												
 
 	protected Producteur(Observateur observateur, int moyenneTempsDeTraitement,	int deviationTempsDeTraitement) throws ControlException { 
 		super(Acteur.typeProducteur, observateur, moyenneTempsDeTraitement, deviationTempsDeTraitement);
@@ -26,7 +26,7 @@ public class Producteur extends Acteur implements _Producteur {
 		
 		id = idStatic; 
 		idStatic ++;
-		nbMessMax = Aleatoire.valeur(5, 10) + 1; // entier entre 1 et 10 
+		nbMessMax = Aleatoire.valeur(5, 10) + 1; 							// un entier entre 1 et 10 
 		nbMessProd = 0;
 	}
 
@@ -52,14 +52,14 @@ public class Producteur extends Acteur implements _Producteur {
 
 	@Override
 	public void run() {
-		while (nbMessMax != nbMessProd) {
-			if (cpt < cptMax)
-				cpt++;
-			else {
-				try {
-					MessageX messX = new MessageX(id, nbMessProd);
-					TestProdCons.TEST.getBuffer().put(this, messX);
-					nbMessProd++;
+		while (nbMessMax != nbMessProd) {									// tant que le nombre de messages max n'est pas atteint 
+			if (cpt < cptMax)                       						// si le compteur est inférieur au compteur max                                     
+				cpt++;														// alors on incrémente le compteur de 1 
+			else {															// sinon
+				try {														
+					MessageX messX = new MessageX(id, nbMessProd);			// on produit un nouveau message
+					TestProdCons.TEST.getBuffer().put(this, messX);			// on dépose le message dans le buffer
+					nbMessProd++;											// et on incrémente le nombre de messages produits de 1 
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					} 
@@ -68,15 +68,16 @@ public class Producteur extends Acteur implements _Producteur {
 					e.printStackTrace();
 				}
 					
-				cptMax = random.next();
-				cpt = 0;
+				cptMax = random.next();										// le compteur max prend une nouvelle valeur 
+				cpt = 0;													// on réinitialise notre compteur
 			}
 		}
+		
 		TestProdCons.TEST.remove(this);
 	}
 	
 	public String toString() {
-		return "Le producteur " + id + " a produits " + nbMessProd + " messages, le nombre de messages maximal étant " + nbMessMax;
+		return "[-->] PRODUCTEUR " + id + " : nombre de messages écrits  = " + nbMessProd + "\n\t\t     nombre de messages maximal = " + nbMessMax;
 	}
 
 }

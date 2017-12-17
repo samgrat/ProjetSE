@@ -6,12 +6,12 @@ import jus.poc.prodcons._Consommateur;
 import jus.poc.prodcons._Producteur;
 
 public class ProdCons implements Tampon {
-
-	private int bufferSize;
-	private int lec;
-	private int ecr;
-	protected Message[] buffer;
-
+	
+	private int bufferSize;													// taille du buffer
+	private int lec;														// indice du message retiré (lecture)
+	private int ecr;														// indice du message déposé (écriture)
+	protected Message[] buffer;												// le buffer est un vecteur de messages
+	
 	public ProdCons(int sizeOfBuffer) {
 		buffer = new Message[sizeOfBuffer];
 		bufferSize = sizeOfBuffer;
@@ -24,42 +24,53 @@ public class ProdCons implements Tampon {
 	}
 
 	@Override
-	public synchronized Message get(_Consommateur cons) throws Exception, InterruptedException {
-
-		while (lec == ecr) {
-			System.out.println("Le consommateur " + cons.identification() + " est en attente \n");
-			wait();
-		}
-
-		Message mess = buffer[lec];
-		lec++;
-
-		System.out.print("\t" + cons + " + " + 1 + "\t" + "  :  " + mess + "\n");
-
-		if (lec == bufferSize) {
+	public Message get(_Consommateur cons) throws Exception, InterruptedException {
+		Message mess;
+				
+		synchronized(this) {
+			while (lec == ecr) {
+				System.out.println("[...] CONSOMMATEUR " + cons.identification() + " en attente");
+				wait();
+				}
 			
-			ecr = 0;
-			lec = 0;
+			mess = buffer[lec];												// le message est retiré du buffer depuis l'endroit approprié
+			lec++;															// on incrémente l'indice du dernier message retiré du buffer 
+		
+			if (lec == bufferSize) {										// si cet indice est égal à la taille du buffer
+				ecr = ecr%bufferSize;										// alors l'indice du dernier message déposé dans le buffer correspond au premier élément du buffer
+				lec = 0;													// et on réinitialise l'indice du dernier message retiré du buffer
+			}
+			
+			System.out.print(cons); 
+			System.out.println(" + " + 1);
+			System.out.println("\t\t       " + mess);
+		
+			notifyAll();
 		}
-
-		notifyAll();
-
+		
 		return mess;
 	}
+	
 
 	@Override
-	public synchronized void put(_Producteur prod, Message mess) throws Exception, InterruptedException {
-		while (ecr - lec >= bufferSize) {
-			System.out.println("Le producteur " + prod.identification() + " est en attente \n");
-			wait();
+	public void put(_Producteur prod, Message mess) throws Exception, InterruptedException {
+		
+		synchronized(this) {
+			
+			while (ecr - lec >= bufferSize) {
+				System.out.println("[...] PRODUCTEUR " + prod.identification() + " est en attente");
+				wait();
+			}
+																			
+			buffer[ecr%bufferSize] = mess;									// le message est déposé dans le buffer au prochain endroit disponible
+			ecr++;															// on incrémente l'indice du dernier message déposé dans le buffer
+			
+			System.out.print(prod); 
+			System.out.println(" + " + 1);
+			System.out.println("\t\t     " + mess);
+			
+			notifyAll();
 		}
-
-		buffer[ecr] = mess;
-		ecr++;
-
-		System.out.print("\t" + prod + " + " + 1 + "\t" + "  :  " + mess + "\n");
-
-		notifyAll();
 	}
 
 	@Override
