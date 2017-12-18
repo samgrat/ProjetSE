@@ -31,7 +31,7 @@ public class ProdCons implements Tampon {
 	}
 	
 	private Semaphore semaProd;
-	private Semaphore semaCons;	
+	private Semaphore semaCons;
 	
 	private int bufferSize;													// taille du buffer
 	private int lec;														// indice du message retiré (lecture)

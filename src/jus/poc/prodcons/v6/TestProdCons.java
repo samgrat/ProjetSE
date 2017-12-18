@@ -108,6 +108,13 @@ public class TestProdCons extends Simulateur {
 				} catch (ControlException e) {
 					e.printStackTrace();
 				}
+				
+				// Premier test
+				if(observateur.coherent()){
+					System.out.println("Observateur correctement initialise");
+				}else{
+					System.err.println("Probleme initialisation Observateur");
+				}
 		}
 	
 	public static void main(String[] args) {

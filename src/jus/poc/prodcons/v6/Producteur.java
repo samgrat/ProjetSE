@@ -76,7 +76,10 @@ public class Producteur extends Acteur implements _Producteur {
 					
 					TestProdCons.TEST.getBuffer().put(this, messX);			// on dépose le message dans le buffer
 					nbMessProd++;									// et on incrémente le nombre de messages produits de 1 
+					
+					
 					TestProdCons.TEST.getObservateur().productionMessage(this, messX, cptMax);	// productionMessage
+					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					} 
