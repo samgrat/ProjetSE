@@ -1,11 +1,16 @@
 package jus.poc.prodcons.v4;
 
+import java.util.ArrayList;
+
 import jus.poc.prodcons.Message;
 
 public class MessageX implements Message {
 
+	public static int ID;			// l'id du message le plus recent
+	
 	private int num;
 	private int idProd;
+	private int idMessage;
 	private int nbExemplProd;		// nombre d'exemplaires du message a etre produit
 	private int nbExemplCons;		// nombre d'exemplaires du message consommes
 	
@@ -14,6 +19,17 @@ public class MessageX implements Message {
 		num = messNbr;
 		nbExemplProd = nbExemplMess;
 		nbExemplCons = 0;
+		
+		idMessage = ID;
+		ID++;
+	}
+	
+	public static void reinitID(){
+		ID = 0;
+	}
+	
+	public int GetidMessage(){
+		return idProd;
 	}
 	
 	public int GetnbExemplProd() {

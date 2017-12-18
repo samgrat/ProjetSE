@@ -11,7 +11,7 @@ public class Producteur extends Acteur implements _Producteur {
 	protected int id;														// identificateur du producteur de message
 	protected int nbMessMax;												// nombre de massages maximal que le producteur doit envoyers
 	protected int nbMessProd;												// nombre de messages produits par le producteur
-	protected MessageX messX = new MessageX(0, 0, 0);	;												// message en train d'etre produit
+	protected MessageX messX;												// message en train d'etre produit
 	protected int nbMessProdOld;											// nombre de message ayant ete produit avant le message courant
 	
 	private static int idStatic = 1;
@@ -61,7 +61,13 @@ public class Producteur extends Acteur implements _Producteur {
 				cpt++;														// alors on incrémente le compteur de 1 
 			else {															// sinon
 				try {	
-					if(nbMessProd == nbMessProdOld + messX.GetnbExemplProd()){ // si on a produit assez d'exemplaires du message courant on en genere un nouveau
+					int nbExemplProd;
+					
+					if(messX != null){
+						nbExemplProd = messX.GetnbExemplProd();
+					}else{nbExemplProd =0;}
+					
+					if(nbMessProd == nbMessProdOld + nbExemplProd){ // si on a produit assez d'exemplaires du message courant on en genere un nouveau
 
 						int nbExemplMess = Aleatoire.valeur(3, nbMessMax-nbMessProdOld) + 1;  // un entier entre 1 et le nombre de message restant a etre produit
 						messX = new MessageX(id, nbMessProd, nbExemplMess);			// on produit un nouveau message

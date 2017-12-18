@@ -53,6 +53,7 @@ public class TestProdCons extends Simulateur {
 	* @param file the final name of the file containing the options.
 	*/
 	protected void init() {
+		MessageX.reinitID();
 		
 		System.out.println("---------- NOUVEAU TEST ----------");
 		System.out.println("\n");

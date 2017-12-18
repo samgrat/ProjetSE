@@ -1,5 +1,7 @@
 package jus.poc.prodcons.v4;
 
+import java.util.ArrayList;
+
 import jus.poc.prodcons.Message;
 import jus.poc.prodcons.Tampon;
 import jus.poc.prodcons._Consommateur;
@@ -63,7 +65,7 @@ public class ProdCons implements Tampon {
 				wait();
 			}
 			
-			mess = (MessageX) buffer[lec];												// le message est retiré du buffer depuis l'endroit approprié
+			mess = (MessageX) pickMessage(lec);												// le message est retiré du buffer depuis l'endroit approprié
 			lec++;															// on incrémente l'indice du dernier message retiré du buffer 
 		
 			if (lec == bufferSize) {										// si cet indice est égal à la taille du buffer
@@ -88,6 +90,22 @@ public class ProdCons implements Tampon {
 		return mess;
 	}
 	
+
+	private MessageX pickMessage(int lec) throws Exception {
+		MessageX mess;
+		MessageX thechosenone = (MessageX) buffer[lec];
+		
+		// on parcours le buffer
+		for(int i = 0; i <buffer.length; i++){
+			mess = (MessageX) buffer[i];
+			// si le message a un id plus ancien on le choisi en priorite
+			if (mess.GetidMessage() < thechosenone.GetidMessage()){
+				thechosenone = mess;
+			}
+		}
+		
+		return thechosenone;
+	}
 
 	@Override
 	public void put(_Producteur prod, Message mess) throws Exception, InterruptedException {
