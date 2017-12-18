@@ -63,7 +63,7 @@ public class Producteur extends Acteur implements _Producteur {
 				try {	
 					if(nbMessProd == nbMessProdOld + messX.GetnbExemplProd()){ // si on a produit assez d'exemplaires du message courant on en genere un nouveau
 
-						int nbExemplMess = Aleatoire.valeur(1, nbMessMax-nbMessProdOld) + 1;  // un entier entre 1 et le nombre de message restant a etre produit
+						int nbExemplMess = Aleatoire.valeur(3, nbMessMax-nbMessProdOld) + 1;  // un entier entre 1 et le nombre de message restant a etre produit
 						messX = new MessageX(id, nbMessProd, nbExemplMess);			// on produit un nouveau message
 						nbMessProdOld = nbMessProd;
 					}
