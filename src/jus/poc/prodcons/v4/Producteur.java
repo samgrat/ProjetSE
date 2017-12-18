@@ -30,6 +30,8 @@ public class Producteur extends Acteur implements _Producteur {
 		idStatic ++;
 		nbMessMax = Aleatoire.valeur(5, 10) + 1; 							// un entier entre 1 et 10 
 		nbMessProd = 0;
+		
+		observateur.newProducteur(this);	// newProducteur 
 	}
 
 	@Override
@@ -68,7 +70,7 @@ public class Producteur extends Acteur implements _Producteur {
 					
 					TestProdCons.TEST.getBuffer().put(this, messX);			// on dépose le message dans le buffer
 					nbMessProd++;									// et on incrémente le nombre de messages produits de 1 
-						
+					TestProdCons.TEST.getObservateur().productionMessage(this, messX, cptMax);	// productionMessage
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					} 

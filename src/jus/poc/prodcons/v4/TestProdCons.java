@@ -13,8 +13,10 @@ public class TestProdCons extends Simulateur {
 	protected static Vector<Producteur> producerVector;
 	protected static ProdCons buffer;
 	
+	protected java.util.Properties option;
+	
 	protected void run() throws Exception {
-		init("options.xml");
+		init();
 		
 		for (int i = 0; i < producerVector.size(); i++)
 			producerVector.get(i).start();
@@ -34,12 +36,14 @@ public class TestProdCons extends Simulateur {
 		return buffer;
 		}
 	
+	public Observateur getObservateur() {
+		return observateur;
+	}
+	
 	public boolean finished() {
 		return (consumerVector.size() == 0 && buffer.enAttente() == 0);
 	}
-	
-	protected java.util.Properties option;
-	
+		
 	public TestProdCons(Observateur observateur) {
 		super(observateur);
 		}
@@ -48,7 +52,7 @@ public class TestProdCons extends Simulateur {
 	* Retreave the parameters of the application.
 	* @param file the final name of the file containing the options.
 	*/
-	protected void init(String file) {
+	protected void init() {
 		
 		System.out.println("---------- NOUVEAU TEST ----------");
 		System.out.println("\n");
@@ -57,9 +61,9 @@ public class TestProdCons extends Simulateur {
 		final class Properties extends java.util.Properties {
 			private static final long serialVersionUID = 1L;
 			
-			public int get(String key) {
-				return Integer.parseInt(getProperty(key));
-				}
+//			public int get(String key) {
+//				return Integer.parseInt(getProperty(key));
+//				}
 			
 			public Properties(String file) {
 				try {
@@ -71,24 +75,38 @@ public class TestProdCons extends Simulateur {
 				}
 			}
 		
-		Properties option = new Properties("jus/poc/prodcons/options/"+file);
-		
-		int nbrProd = option.get("nbProd");
-		int nbrCons = option.get("nbCons");
-		
-		producerVector = new Vector<Producteur>();
-		consumerVector = new Vector<Consommateur>();
-		buffer = new ProdCons(option.get("nbBuffer"));
-		
-		try {
-			for (int i = 0; i < nbrProd; i++)
-				producerVector.add(new Producteur(observateur, option.get("tempsMoyenProduction"), option.get("deviationTempsMoyenProduction")));
-			for (int i = 0; i < nbrCons; i++)
-				consumerVector.add(new Consommateur(observateur, option.get("tempsMoyenConsommation"), option.get("deviationTempsMoyenConsommation")));
-		} 
-		catch (ControlException e) {
-			e.printStackTrace();
-			}
+		// les options sont toujours obtenues via le fichier xml
+				option = new Properties("jus/poc/prodcons/options/" + "options.xml");
+
+				int nbProd = Integer.parseInt((String) option.get("nbProd"));
+				int nbCons = Integer.parseInt((String) option.get("nbCons"));
+				int nbBuffer = Integer.parseInt((String) option.get("nbBuffer"));
+
+				try { // initialisation de l'observateur
+					observateur.init(nbProd, nbCons, nbBuffer);
+				} catch (ControlException e) {
+					e.printStackTrace();
+				}
+
+				producerVector = new Vector<Producteur>();
+				consumerVector = new Vector<Consommateur>();
+
+				buffer = new ProdCons(nbBuffer);
+
+				try {
+					for (int i = 0; i < nbProd; i++){
+						Producteur producteur = new Producteur(observateur, Integer.parseInt((String) option.get("tempsMoyenProduction")),
+								Integer.parseInt((String) option.get("deviationTempsMoyenProduction")));
+						producerVector.add(producteur); // on garde une copie de notre producteur dans le producerVector
+					}
+					for (int i = 0; i < nbCons; i++){
+						Consommateur consommateur = new Consommateur(observateur, Integer.parseInt((String) option.get("tempsMoyenConsommation")),
+								Integer.parseInt((String) option.get("deviationTempsMoyenConsommation")));
+						consumerVector.add(consommateur); // on garde une copie de notre consommateur dans le consumerVector
+					}
+				} catch (ControlException e) {
+					e.printStackTrace();
+				}
 		}
 	
 	public static void main(String[] args) {

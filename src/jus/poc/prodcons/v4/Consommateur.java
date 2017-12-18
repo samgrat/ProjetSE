@@ -3,6 +3,7 @@ package jus.poc.prodcons.v4;
 import jus.poc.prodcons.Acteur;
 import jus.poc.prodcons.Aleatoire;
 import jus.poc.prodcons.ControlException;
+import jus.poc.prodcons.Message;
 import jus.poc.prodcons.Observateur;
 import jus.poc.prodcons._Consommateur;
 
@@ -27,6 +28,7 @@ public class Consommateur extends Acteur implements _Consommateur {
 		idStatic ++;
 		nbMessCons = 0;
 
+		observateur.newConsommateur(this);	// newConsommateur
 	}
 
 	@Override
@@ -56,8 +58,10 @@ public class Consommateur extends Acteur implements _Consommateur {
 				cpt++;													// alors on incrémente le compteur de 1
 			else {														// sinon
 				try {
-					TestProdCons.TEST.getBuffer().get(this);			// on retire le message du buffer
-					nbMessCons++;										// et on incrémente le nombre de messages consommés de 1
+					Message mess = TestProdCons.TEST.getBuffer().get(this);
+					TestProdCons.TEST.getBuffer().get(this);			
+					nbMessCons++;										
+					TestProdCons.TEST.getObservateur().consommationMessage(this, mess, cptMax);	// consommationMessage
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					} 

@@ -71,6 +71,7 @@ public class ProdCons implements Tampon {
 				lec = 0;													// et on réinitialise l'indice du dernier message retiré du buffer
 			}
 			
+			TestProdCons.TEST.getObservateur().retraitMessage(cons, mess);	// retraitMessage
 			mess.Consume();
 			System.out.print(cons); 
 			System.out.println(" + " + 1);
@@ -103,6 +104,8 @@ public class ProdCons implements Tampon {
 																			
 			buffer[ecr%bufferSize] = mess;									// le message est déposé dans le buffer au prochain endroit disponible
 			ecr++;															// on incrémente l'indice du dernier message déposé dans le buffer
+			
+			TestProdCons.TEST.getObservateur().depotMessage(prod, mess);	// depotMessage
 			
 			System.out.print(prod); 
 			System.out.println(" + " + 1);

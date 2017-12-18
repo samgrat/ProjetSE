@@ -25,7 +25,7 @@ public class TestProdCons extends Simulateur {
 			consumerVector.get(i).start();
 	}
 
-	void remove(Consommateur p) {
+	public void remove(Consommateur p) {
 		consumerVector.remove(p);
 	}
 
